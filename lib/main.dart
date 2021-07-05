@@ -46,15 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text('WebRTC Sample'),
-            HtmlElementView(viewType: 'videoView'),
-          ],
-        ),
-      ),
+      body: HtmlElementView(viewType: 'videoView'),
     );
   }
 }
