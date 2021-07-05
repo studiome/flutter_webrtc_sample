@@ -14,7 +14,9 @@ class MyApp extends StatelessWidget {
     ui.platformViewRegistry.registerViewFactory('videoView', (viewId) {
       final video = VideoElement();
       video.autoplay = true;
-      window.navigator.getUserMedia(video: true, audio: true).then((stream) {
+      window.navigator.getUserMedia(video: {
+        'width': {'min': 720, 'ideal': 1080, 'max': 1920},
+      }, audio: true).then((stream) {
         video.srcObject = stream;
       });
       return video;
