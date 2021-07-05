@@ -13,6 +13,20 @@ class MyApp extends StatelessWidget {
     //ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory('videoView', (viewId) {
       final video = VideoElement();
+      List<dynamic> videoinputs = [];
+      MediaDevices? m = window.navigator.mediaDevices;
+      if (m == null) {
+        return video;
+      } else {
+        m.enumerateDevices().then((devices) {
+          videoinputs = devices.where((d) => d.kind == 'videoinput').toList();
+        }).whenComplete(() {
+          videoinputs.forEach((element) {
+            print(element.label);
+          });
+        });
+      }
+
       video.autoplay = true;
       window.navigator.getUserMedia(video: {
         'width': {'min': 720, 'ideal': 1080, 'max': 1280},
