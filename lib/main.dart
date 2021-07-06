@@ -43,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
           videoinputs = devices.where((d) => d.kind == 'videoinput').toList();
         }).whenComplete(() {
           videoinputs.forEach((element) {
-            print('camera: {element.label}');
+            print('camera: ${element.label}');
           });
         });
       }
