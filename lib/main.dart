@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
       video.autoplay = true;
       window.navigator.getUserMedia(video: {
         'width': {'min': 720, 'ideal': 1080, 'max': 1280},
-      }, audio: true).then((stream) {
+      }, audio: false).then((stream) {
         video.srcObject = stream;
       });
       return video;
