@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
           videoinputs = devices.where((d) => d.kind == 'videoinput').toList();
         }).whenComplete(() {
           videoinputs.forEach((element) {
-            print(element.label);
+            print('camera: {element.label}');
           });
         });
       }
