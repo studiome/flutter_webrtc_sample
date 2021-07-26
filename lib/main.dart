@@ -45,6 +45,10 @@ class _MyHomePageState extends State<MyHomePage> {
             videoInputs.add(element as MediaDeviceInfo);
           }
         });
+      }).whenComplete(() {
+        setState(() {
+          selectedDevice = videoInputs.first;
+        });
       });
     }
   }
