@@ -59,13 +59,20 @@ class _MyHomePageState extends State<MyHomePage> {
     ui.platformViewRegistry.registerViewFactory('videoView', (viewId) {
       final video = VideoElement();
       video.autoplay = true;
-      if (selectedDevice == null) return video;
-      window.navigator.getUserMedia(video: {
-        'deviceId': selectedDevice!.deviceId,
-        'width': {'min': 720, 'ideal': 1080, 'max': 1280},
-      }, audio: false).then((stream) {
-        video.srcObject = stream;
-      });
+      if (selectedDevice == null) {
+        window.navigator.getUserMedia(video: {
+          'width': {'min': 720, 'ideal': 1080, 'max': 1280},
+        }, audio: false).then((stream) {
+          video.srcObject = stream;
+        });
+      } else {
+        window.navigator.getUserMedia(video: {
+          'deviceId': selectedDevice!.deviceId,
+          'width': {'min': 720, 'ideal': 1080, 'max': 1280},
+        }, audio: false).then((stream) {
+          video.srcObject = stream;
+        });
+      }
       return video;
     });
 
