@@ -38,10 +38,8 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {
       var _devices = await m.enumerateDevices();
       v = _devices.where((_d) => _d.kind == 'videoinput').toList();
-    }
-    setState(() {
       selectedDevice = v[0];
-    });
+    }
     return Future.value(v);
   }
 
