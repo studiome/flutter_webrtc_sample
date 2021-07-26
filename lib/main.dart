@@ -29,38 +29,67 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  MediaDeviceInfo? selectedDevice;
+  List<dynamic> videoInputs = [];
+
+  @override
+  void initState() {
+    super.initState();
+    MediaDevices? m = window.navigator.mediaDevices;
+    if (m == null) {
+      return;
+    } else {
+      m.enumerateDevices().then((devices) {
+        videoInputs = devices.where((d) => d.kind == 'videoinput').toList();
+      }).whenComplete(() {
+        setState(() {
+          selectedDevice = videoInputs[0];
+        });
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     //ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory('videoView', (viewId) {
       final video = VideoElement();
-      List<dynamic> videoinputs = [];
-      MediaDevices? m = window.navigator.mediaDevices;
-      if (m == null) {
-        return video;
-      } else {
-        m.enumerateDevices().then((devices) {
-          videoinputs = devices.where((d) => d.kind == 'videoinput').toList();
-        }).whenComplete(() {
-          videoinputs.forEach((element) {
-            print('camera: ${element.label}');
-          });
-        });
-      }
-
       video.autoplay = true;
+      if (selectedDevice == null) return video;
       window.navigator.getUserMedia(video: {
+        'deviceId': selectedDevice!.deviceId,
         'width': {'min': 720, 'ideal': 1080, 'max': 1280},
       }, audio: false).then((stream) {
         video.srcObject = stream;
       });
       return video;
     });
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: HtmlElementView(viewType: 'videoView'),
+      body: Column(
+        children: [
+          DropdownButton<MediaDeviceInfo>(
+            value: selectedDevice,
+            items: videoInputs.map<DropdownMenuItem<MediaDeviceInfo>>((val) {
+              return DropdownMenuItem<MediaDeviceInfo>(
+                value: val,
+                child: Text(val.label != null ? val.label! : 'video'),
+              );
+            }).toList(),
+            onChanged: (MediaDeviceInfo? d) {
+              setState(() {
+                if (d != null) {
+                  selectedDevice = d;
+                }
+              });
+            },
+          ),
+          HtmlElementView(viewType: 'videoView'),
+        ],
+      ),
     );
   }
 }
