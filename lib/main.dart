@@ -30,6 +30,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   MediaDeviceInfo? selectedDevice;
+  late Future<List<dynamic>> _getDeviceMethod;
+
+  @override
+  void initState() {
+    super.initState();
+    _getDeviceMethod = getDevices();
+  }
 
   Future<List<dynamic>> getDevices() async {
     List<dynamic> v = [];
@@ -66,27 +73,37 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: [
           FutureBuilder<List<dynamic>>(
-              future: getDevices(),
+              future: _getDeviceMethod,
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return DropdownButton<MediaDeviceInfo>(
-                    value: selectedDevice,
-                    items: snapshot.data!.map((val) {
-                      return DropdownMenuItem<MediaDeviceInfo>(
-                        value: val,
-                        child: Text(val.label != null ? val.label! : 'video'),
+                switch (snapshot.connectionState) {
+                  case ConnectionState.none:
+                  case ConnectionState.active:
+                  case ConnectionState.waiting:
+                    return Text('waiting');
+                  case ConnectionState.done:
+                    if (snapshot.hasData) {
+                      return DropdownButton<MediaDeviceInfo>(
+                        isExpanded: true,
+                        value: selectedDevice,
+                        items: snapshot.data!.map((val) {
+                          return DropdownMenuItem<MediaDeviceInfo>(
+                            value: val,
+                            child:
+                                Text(val.label != null ? val.label! : 'video'),
+                          );
+                        }).toList(),
+                        onChanged: (MediaDeviceInfo? d) {
+                          print(selectedDevice);
+                          setState(() {
+                            if (d != null) {
+                              selectedDevice = d;
+                            }
+                          });
+                        },
                       );
-                    }).toList(),
-                    onChanged: (MediaDeviceInfo? d) {
-                      setState(() {
-                        if (d != null) {
-                          selectedDevice = d;
-                        }
-                      });
-                    },
-                  );
-                } else {
-                  return Text("no devices");
+                    } else {
+                      return Text('No Device');
+                    }
                 }
               }),
           HtmlElementView(viewType: 'videoView'),
