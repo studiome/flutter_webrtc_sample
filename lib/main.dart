@@ -92,12 +92,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         items: snapshot.data!.map((val) {
                           return DropdownMenuItem<MediaDeviceInfo>(
                             value: val,
-                            child:
-                                Text(val.label != null ? val.label! : 'video'),
+                            child: Text(val != null ? val.label! : 'video'),
                           );
                         }).toList(),
                         onChanged: (MediaDeviceInfo? d) {
-                          print(selectedDevice);
                           setState(() {
                             if (d != null) {
                               selectedDevice = d;
