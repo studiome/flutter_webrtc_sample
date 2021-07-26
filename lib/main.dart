@@ -86,6 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   case ConnectionState.done:
                     if (snapshot.hasData) {
                       return DropdownButton<MediaDeviceInfo>(
+                        hint: Text("Select Video Device"),
                         isExpanded: true,
                         value: selectedDevice,
                         items: snapshot.data!.map((val) {
