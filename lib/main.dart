@@ -30,27 +30,23 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   MediaDeviceInfo? selectedDevice;
-  late Future<List<MediaDeviceInfo>> videoInputs;
-
-  Future<List<MediaDeviceInfo>> getDevices() async {
-    List<MediaDeviceInfo> v = [];
-    MediaDevices? m = window.navigator.mediaDevices;
-    if (m == null) {
-    } else {
-      var _devices = await m.enumerateDevices();
-      _devices.forEach((element) {
-        if (element.kind == 'videoinput') {
-          v.add(element as MediaDeviceInfo);
-        }
-      });
-    }
-    return Future.value(v);
-  }
+  List<MediaDeviceInfo> videoInputs = [];
 
   @override
   void initState() {
     super.initState();
-    videoInputs = getDevices();
+    MediaDevices? m = window.navigator.mediaDevices;
+    if (m == null) {
+      return;
+    } else {
+      m.enumerateDevices().then((devices) {
+        devices.forEach((element) {
+          if (element.kind == 'videoinput') {
+            videoInputs.add(element as MediaDeviceInfo);
+          }
+        });
+      });
+    }
   }
 
   @override
@@ -82,39 +78,24 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: [
-          FutureBuilder<List<dynamic>>(
-              future: videoInputs,
-              builder: (context, snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.none:
-                  case ConnectionState.active:
-                  case ConnectionState.waiting:
-                    return Text('waiting');
-                  case ConnectionState.done:
-                    if (snapshot.hasData) {
-                      return DropdownButton<MediaDeviceInfo>(
-                        hint: Text("Select Video Device"),
-                        isExpanded: true,
-                        value: selectedDevice,
-                        items: snapshot.data!.map((val) {
-                          return DropdownMenuItem<MediaDeviceInfo>(
-                            value: val,
-                            child: Text(val != null ? val.label! : 'video'),
-                          );
-                        }).toList(),
-                        onChanged: (MediaDeviceInfo? d) {
-                          setState(() {
-                            if (d != null) {
-                              selectedDevice = d;
-                            }
-                          });
-                        },
-                      );
-                    } else {
-                      return Text('No Device');
-                    }
+          DropdownButton<MediaDeviceInfo>(
+            hint: Text("Select Video Device"),
+            isExpanded: true,
+            value: selectedDevice,
+            items: videoInputs.map((val) {
+              return DropdownMenuItem<MediaDeviceInfo>(
+                value: val,
+                child: Text(val.label != null ? val.label! : 'video'),
+              );
+            }).toList(),
+            onChanged: (MediaDeviceInfo? d) {
+              setState(() {
+                if (d != null) {
+                  selectedDevice = d;
                 }
-              }),
+              });
+            },
+          ),
           HtmlElementView(viewType: 'videoView'),
         ],
       ),
