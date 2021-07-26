@@ -30,7 +30,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   MediaDeviceInfo? selectedDevice;
-  late Future<List<MediaDeviceInfo>> futureDevices;
+  late Future<List<MediaDeviceInfo>> videoInputs;
 
   Future<List<MediaDeviceInfo>> getDevices() async {
     List<MediaDeviceInfo> v = [];
@@ -43,7 +43,6 @@ class _MyHomePageState extends State<MyHomePage> {
           v.add(element as MediaDeviceInfo);
         }
       });
-      selectedDevice = v[0];
     }
     return Future.value(v);
   }
@@ -51,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    futureDevices = getDevices();
+    videoInputs = getDevices();
   }
 
   @override
@@ -77,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: [
           FutureBuilder<List<dynamic>>(
-              future: futureDevices,
+              future: videoInputs,
               builder: (context, snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.none:
