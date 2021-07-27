@@ -31,48 +31,54 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   MediaDeviceInfo? selectedDevice;
   List<MediaDeviceInfo> videoInputs = [];
+  bool viewFirst = true;
 
   @override
   void initState() {
     super.initState();
-    MediaDevices? m = window.navigator.mediaDevices;
-    if (m == null) {
-      return;
-    } else {
-      m.enumerateDevices().then((devices) {
-        devices.forEach((element) {
-          if (element.kind == 'videoinput') {
-            videoInputs.add(element as MediaDeviceInfo);
-          }
-        });
-      }).whenComplete(() {
-        setState(() {
-          selectedDevice = videoInputs.first;
-        });
+    viewFirst = true;
+    //ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory('videoView1', (viewId) {
+      final video = VideoElement();
+      video.autoplay = true;
+      window.navigator.getUserMedia(video: {
+        'width': {'min': 720, 'ideal': 1080, 'max': 1280},
+      }, audio: false).then((stream) {
+        video.srcObject = stream;
+        viewFirst = false;
+        MediaDevices? m = window.navigator.mediaDevices;
+        if (m == null) {
+          return;
+        } else {
+          m.enumerateDevices().then((devices) {
+            devices.forEach((element) {
+              if (element.kind == 'videoinput') {
+                videoInputs.add(element as MediaDeviceInfo);
+              }
+            });
+          }).whenComplete(() {
+            setState(() {
+              selectedDevice = videoInputs.first;
+            });
+          });
+        }
       });
-    }
+      return video;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     //ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory('videoView', (viewId) {
+    ui.platformViewRegistry.registerViewFactory('videoView2', (viewId) {
       final video = VideoElement();
       video.autoplay = true;
-      if (selectedDevice == null) {
-        window.navigator.getUserMedia(video: {
-          'width': {'min': 720, 'ideal': 1080, 'max': 1280},
-        }, audio: false).then((stream) {
-          video.srcObject = stream;
-        });
-      } else {
-        window.navigator.getUserMedia(video: {
-          'deviceId': selectedDevice!.deviceId,
-          'width': {'min': 720, 'ideal': 1080, 'max': 1280},
-        }, audio: false).then((stream) {
-          video.srcObject = stream;
-        });
-      }
+      window.navigator.getUserMedia(video: {
+        'deviceId': selectedDevice!.deviceId,
+        'width': {'min': 720, 'ideal': 1080, 'max': 1280},
+      }, audio: false).then((stream) {
+        video.srcObject = stream;
+      });
       return video;
     });
 
@@ -86,12 +92,14 @@ class _MyHomePageState extends State<MyHomePage> {
             hint: Text("Select Video Device"),
             isExpanded: true,
             value: selectedDevice,
-            items: videoInputs.map((val) {
-              return DropdownMenuItem<MediaDeviceInfo>(
-                value: val,
-                child: Text(val.label != null ? val.label! : 'video'),
-              );
-            }).toList(),
+            items: viewFirst
+                ? null
+                : videoInputs.map((val) {
+                    return DropdownMenuItem<MediaDeviceInfo>(
+                      value: val,
+                      child: Text(val.label != null ? val.label! : 'video'),
+                    );
+                  }).toList(),
             onChanged: (MediaDeviceInfo? d) {
               setState(() {
                 if (d != null) {
@@ -100,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
               });
             },
           ),
-          HtmlElementView(viewType: 'videoView'),
+          HtmlElementView(viewType: viewFirst ? 'videoView1' : 'videoView2'),
         ],
       ),
     );
