@@ -36,7 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     //ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory('videoView1', (viewId) {
+    ui.platformViewRegistry.registerViewFactory('videoView', (viewId) {
       final video = VideoElement();
       video.autoplay = true;
       window.navigator.getUserMedia(video: {
@@ -45,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
         video.srcObject = stream;
         MediaDevices? m = window.navigator.mediaDevices;
         if (m == null) {
-          return;
+          return video;
         } else {
           m.enumerateDevices().then((devices) {
             devices.forEach((element) {
@@ -87,31 +87,38 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          DropdownButton<MediaDeviceInfo>(
-            hint: Text("Select Video Device"),
-            isExpanded: true,
-            value: selectedDevice,
-            items: selectedDevice == null
-                ? null
-                : videoInputs.map((val) {
-                    return DropdownMenuItem<MediaDeviceInfo>(
-                      value: val,
-                      child: Text(val.label != null ? val.label! : 'video'),
-                    );
-                  }).toList(),
-            onChanged: (MediaDeviceInfo? d) {
-              setState(() {
-                if (d != null) {
-                  selectedDevice = d;
-                }
-              });
-            },
+          Container(
+            width: 480,
+            child: DropdownButton<MediaDeviceInfo>(
+              hint: Text("Select Video Device"),
+              isExpanded: true,
+              value: selectedDevice,
+              items: selectedDevice == null
+                  ? null
+                  : videoInputs.map((val) {
+                      return DropdownMenuItem<MediaDeviceInfo>(
+                        value: val,
+                        child: Text(val.label != null ? val.label! : 'video'),
+                      );
+                    }).toList(),
+              onChanged: (MediaDeviceInfo? d) {
+                setState(() {
+                  if (d != null) {
+                    selectedDevice = d;
+                  }
+                });
+              },
+            ),
           ),
-          HtmlElementView(
-            viewType: selectedDevice == null
-                ? 'videoView1'
-                : selectedDevice!.deviceId.toString(),
+          Expanded(
+            child: HtmlElementView(
+              viewType: selectedDevice == null
+                  ? 'videoView'
+                  : selectedDevice!.deviceId.toString(),
+            ),
           )
         ],
       ),
